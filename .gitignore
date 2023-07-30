@@ -1,0 +1,12 @@
+# Database
+calendar.db
+test_calendar.db
+
+# Environment
+.env
+
+# Python
+__pycache__/
+.mypy_cache
+.pytest_cache
+.ruff_cache

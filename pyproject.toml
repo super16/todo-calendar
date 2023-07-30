@@ -1,0 +1,63 @@
+[tool.poetry]
+name = "todo-calendar"
+version = "0.1.0"
+description = "Calendar application with day to day tasks."
+authors = ["Mark <super16mail@gmail.com>"]
+readme = "README.md"
+packages = [{include = "todo_calendar"}]
+
+[tool.poetry.dependencies]
+aiosqlite = "^0.19.0"
+alembic = "^1.11.1"
+fastapi = {extras = ["all"], version = "^0.100.0"}
+pydantic-settings = "^2.0.2"
+python = "^3.11"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.19"}
+uvicorn = {extras = ["standard"], version = "^0.23.0"}
+
+[tool.poetry.group.development.dependencies]
+mypy = "^1.4.1"
+ruff = "^0.0.278"
+
+[tool.poetry.group.testing.dependencies]
+pytest = "^7.4.0"
+pytest-asyncio = "^0.21.1"
+
+[tool.ruff]
+line-length = 79
+select = [
+    "A",
+    "ANN",
+    "ASYNC",
+    "B",
+    "BLE",
+    "C4",
+    "COM",
+    "E",
+    "F",
+    "FBT",
+    "I",
+    "ICN",
+    "N",
+    "Q",
+    "PL",
+    "PLR",
+    "RET",
+    "S",
+    "SIM",
+    "SLF",
+    "T20",
+    "UP",
+    "W",
+    "YTT"
+]
+ignore = ["S314"]
+target-version = "py311"
+extend-exclude = ["tests"]
+
+[tool.ruff.mccabe]
+max-complexity = 10
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
