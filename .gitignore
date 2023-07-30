@@ -5,6 +5,10 @@ test_calendar.db
 # Environment
 .env
 
+# Frontend
+todo_calendar/frontend/node_modules
+todo_calendar/frontend/dist
+
 # Python
 __pycache__/
 .mypy_cache
