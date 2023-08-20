@@ -12,7 +12,7 @@ from .schemas import TaskCreate, TaskItem
 tasks_router = APIRouter(prefix="/tasks")
 
 
-@tasks_router.get("/", response_model=list[TaskItem])
+@tasks_router.get("", response_model=list[TaskItem])
 async def get_tasks(
     tasks_date: date,
     db_session: AsyncSession = Depends(get_async_session),  # noqa: B008
@@ -27,7 +27,7 @@ async def get_tasks(
     ]
 
 
-@tasks_router.post("/", response_model=TaskItem)
+@tasks_router.post("", response_model=TaskItem)
 async def create_task(
     task: TaskCreate,
     db_session: AsyncSession = Depends(get_async_session),  # noqa: B008

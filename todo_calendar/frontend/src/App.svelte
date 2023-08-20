@@ -21,7 +21,7 @@
   async function updateDateAndFetch(date: Date): Promise<void> {
     dateString = formatISO(date, { representation: 'date' });
 
-    const url = new URL('http://localhost:8000/tasks/');
+    const url = new URL('http://localhost:8000/tasks');
     url.searchParams.append('tasks_date', dateString);
     const response = await fetch(url, {
       method: 'GET',

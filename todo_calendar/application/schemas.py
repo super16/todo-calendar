@@ -1,6 +1,8 @@
 from datetime import date
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+
+from .utils import to_lower_camel
 
 
 class TaskBase(BaseModel):
@@ -8,6 +10,11 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
+    model_config = ConfigDict(
+        alias_generator=to_lower_camel,
+        populate_by_name=True,
+    )
+
     tasks_date: date | None = None
 
 
