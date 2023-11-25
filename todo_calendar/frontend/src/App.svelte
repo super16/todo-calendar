@@ -6,6 +6,7 @@
 
   let currentDate: Date = new Date();
   let dateString: string;
+  let dialogEl: HTMLDialogElement;
   let tasks: Array<TaskItem> = [];
 
   async function changeDate(dateString: string, func: Function) {
@@ -14,12 +15,49 @@
     await updateDateAndFetch(currentDate);
   }
 
+  function closeModal() {
+    if (dialogEl) {
+      dialogEl.close();
+    }
+  }
+
+  async function createTask(inputData: SubmitEvent) {
+    const target = inputData.target as HTMLFormElement;
+
+    if (inputData?.target) {
+      const formData = new FormData(target);
+      const response = await fetch(target.action, {
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        method: 'POST',        
+      });
+      const createdTask: TaskItem = await response.json();
+
+      if (createdTask && createdTask.tasksDate === dateString) {
+        tasks = [...tasks, createdTask];
+      }
+    }
+  }
+
+  function dateToISO(date: Date) {
+    return formatISO(date, { representation: 'date' });
+  }
+
+  function openModal() {
+    if (dialogEl) {
+      dialogEl.showModal();
+    }
+  }
+
   async function pickDate(event: Event): Promise<void> {
     await updateDateAndFetch(parseISO((event.target as HTMLInputElement).value));
   }
 
   async function updateDateAndFetch(date: Date): Promise<void> {
-    dateString = formatISO(date, { representation: 'date' });
+    dateString = dateToISO(date);
 
     const url = new URL('http://localhost:8000/tasks');
     url.searchParams.append('tasks_date', dateString);
@@ -53,11 +91,33 @@
   <ul>
     {#each tasks as task}
       <li>
-        <input disabled type=checkbox>
+        <input checked={task.isCompleted} type=checkbox>
         {task.description}
       </li>
     {/each}
   </ul>
+  <button on:click={openModal}>
+    Create new task
+  </button>
+  <dialog bind:this={dialogEl}>
+    <form
+      action=http://localhost:8000/tasks
+      method="dialog"
+      on:submit={createTask}
+    >
+      <h2>New task</h2>
+      <label for=tasksDate>
+        Date
+        <input name=tasksDate type=date value={dateToISO(new Date())}>
+      </label>
+      <label for=description>
+        Description
+        <input name=description type=text>
+      </label>
+      <input type=submit value=Add>
+      <input type=button value=Cancel on:click={closeModal}>
+    </form>
+  </dialog>
 </main>
 
 <style>
