@@ -1,4 +1,4 @@
-export type TaskItem = {
+export interface TaskItem {
   uuid: string
   description: string
   tasksDate: string

@@ -1,90 +1,94 @@
 <script lang="ts">
-  import { add, formatISO, parseISO, sub } from 'date-fns';
-  import { onMount } from 'svelte';
+  import { add, formatISO, parseISO, sub } from 'date-fns'
+  import { onMount } from 'svelte'
 
-  import type { TaskItem } from './types';
+  import type { Duration } from 'date-fns'
+  import type { TaskItem } from './types.ts'
 
-  let currentDate: Date = new Date();
-  let dateString: string;
-  let dialogEl: HTMLDialogElement;
-  let tasks: Array<TaskItem> = [];
+  let currentDate: Date = new Date()
+  let dateString: string
+  let dialogEl: HTMLDialogElement | null
+  let tasks: TaskItem[] = []
 
-  async function changeDate(dateString: string, func: Function) {
-    const dateObject = parseISO(dateString);
-    currentDate = func(dateObject, { days: 1 });
-    await updateDateAndFetch(currentDate);
+  async function changeDate (
+    dateString: string,
+    func: (date: Date, duration: Duration) => Date
+  ): Promise<void> {
+    const dateObject = parseISO(dateString)
+    currentDate = func(dateObject, { days: 1 })
+    await updateDateAndFetch(currentDate)
   }
 
-  function closeModal() {
-    if (dialogEl) {
-      dialogEl.close();
+  function closeModal (): void {
+    if (dialogEl !== null) {
+      dialogEl.close()
     }
   }
 
-  async function createTask(inputData: SubmitEvent) {
-    const target = inputData.target as HTMLFormElement;
+  async function createTask (inputData: SubmitEvent): Promise<void> {
+    const target = inputData.target as HTMLFormElement | null
 
-    if (inputData?.target) {
-      const formData = new FormData(target);
+    if (target !== null) {
+      const formData = new FormData(target)
       const response = await fetch(target.action, {
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         },
-        method: 'POST',        
-      });
-      const createdTask: TaskItem = await response.json();
+        method: 'POST'
+      })
+      const createdTask: TaskItem | null = await response.json()
 
-      if (createdTask && createdTask.tasksDate === dateString) {
-        tasks = [...tasks, createdTask];
+      if (createdTask !== null && createdTask.tasksDate === dateString) {
+        tasks = [...tasks, createdTask]
       }
     }
   }
 
-  function dateToISO(date: Date) {
-    return formatISO(date, { representation: 'date' });
+  function dateToISO (date: Date): string {
+    return formatISO(date, { representation: 'date' })
   }
 
-  function openModal() {
-    if (dialogEl) {
-      dialogEl.showModal();
+  function openModal (): void {
+    if (dialogEl !== null) {
+      dialogEl.showModal()
     }
   }
 
-  async function pickDate(event: Event): Promise<void> {
-    await updateDateAndFetch(parseISO((event.target as HTMLInputElement).value));
+  async function pickDate (event: Event): Promise<void> {
+    await updateDateAndFetch(parseISO((event.target as HTMLInputElement).value))
   }
 
-  async function updateDateAndFetch(date: Date): Promise<void> {
-    dateString = dateToISO(date);
+  async function updateDateAndFetch (date: Date): Promise<void> {
+    dateString = dateToISO(date)
 
-    const url = new URL('http://localhost:8000/tasks');
-    url.searchParams.append('tasks_date', dateString);
+    const url = new URL('http://localhost:8000/tasks')
+    url.searchParams.append('tasks_date', dateString)
     const response = await fetch(url, {
       method: 'GET',
-      headers: { 'Accept': 'application/json' },
-    });
-    tasks = await response.json() || [];
+      headers: { Accept: 'application/json' }
+    })
+    tasks = await response.json() as TaskItem[] ?? []
   }
 
   onMount(async () => {
-    await updateDateAndFetch(currentDate);
+    await updateDateAndFetch(currentDate)
   })
 </script>
 
 <main>
   <h1>To Do Calendar</h1>
   <div class=nav-block>
-    <button on:click={async () => await changeDate(dateString, sub)}>
+    <button on:click={async () => { await changeDate(dateString, sub) }}>
       Prev
     </button>
     <input
       type=date
       value={dateString}
-      on:change={async (e) => await pickDate(e)}
+      on:change={async (e) => { await pickDate(e) }}
     >
-    <button on:click={async () => await changeDate(dateString, add)}>
+    <button on:click={async () => { await changeDate(dateString, add) }}>
       Next
     </button>
   </div>
