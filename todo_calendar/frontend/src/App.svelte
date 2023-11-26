@@ -3,11 +3,12 @@
   import { onMount } from 'svelte'
 
   import type { Duration } from 'date-fns'
-  import type { TaskItem } from './types.ts'
+  import type { TaskItem } from './types'
 
   let currentDate: Date = new Date()
   let dateString: string
   let dialogEl: HTMLDialogElement | null
+  let formEl: HTMLFormElement | null
   let tasks: TaskItem[] = []
 
   async function changeDate (
@@ -51,6 +52,22 @@
   }
 
   function openModal (): void {
+    if (formEl !== null) {
+      Array.from(formEl.elements).forEach((value: Element) => {
+        const newValue = value as HTMLInputElement
+        switch (newValue.name) {
+          case 'tasksDate':
+            newValue.value = dateToISO(currentDate)
+            break
+          case 'description':
+            newValue.value = ''
+            break
+          default:
+            break
+        }
+        value = newValue
+      })
+    }
     if (dialogEl !== null) {
       dialogEl.showModal()
     }
@@ -95,8 +112,14 @@
   <ul>
     {#each tasks as task}
       <li>
-        <input checked={task.isCompleted} type=checkbox>
-        {task.description}
+        <input
+          id={task.uuid}
+          checked={task.isCompleted}
+          type=checkbox
+        >
+        <label for={task.uuid}>
+          {task.description}
+        </label>
       </li>
     {/each}
   </ul>
@@ -104,19 +127,29 @@
     Create new task
   </button>
   <dialog bind:this={dialogEl}>
+    <h2>New task</h2>
     <form
+      bind:this={formEl}
       action=http://localhost:8000/tasks
       method="dialog"
       on:submit={createTask}
     >
-      <h2>New task</h2>
       <label for=tasksDate>
         Date
-        <input name=tasksDate type=date value={dateToISO(new Date())}>
+        <input
+          id=tasksDate
+          name=tasksDate
+          type=date
+          value={dateToISO(new Date())}
+        >
       </label>
       <label for=description>
         Description
-        <input name=description type=text>
+        <input
+          id=description
+          name=description
+          type=text
+        >
       </label>
       <input type=submit value=Add>
       <input type=button value=Cancel on:click={closeModal}>
