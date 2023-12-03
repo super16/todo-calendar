@@ -1,14 +1,20 @@
 from asyncio import get_event_loop_policy
+from collections.abc import AsyncGenerator
 from datetime import date
 from pathlib import Path
 
 from fastapi.testclient import TestClient
 from pytest_asyncio import fixture
-from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 from alembic.command import upgrade
 from alembic.config import Config
-from todo_calendar.application.config import Settings, get_settings
+from todo_calendar.application.config import Settings
+from todo_calendar.application.database import get_async_session
 from todo_calendar.main import app
 
 
@@ -21,7 +27,7 @@ def event_loop():
 
 
 @fixture(scope="session")
-def testing_settings():
+def testing_settings() -> Settings:
     return Settings(database_uri="sqlite+aiosqlite:///test_calendar.db")
 
 
@@ -37,7 +43,22 @@ def today_date() -> str:
 
 
 @fixture(scope="session")
-async def client(testing_settings: Settings):
+async def get_test_async_session(
+    testing_settings: Settings,
+) -> AsyncGenerator[AsyncSession, None]:
+    test_async_session = async_sessionmaker(
+        bind=create_async_engine(url=testing_settings.database_uri),
+        expire_on_commit=False,
+    )
+    async with test_async_session() as session:
+        yield session
+
+
+@fixture(scope="session")
+async def client(
+    testing_settings: Settings,
+    get_test_async_session: AsyncSession
+):
     test_engine = create_async_engine(testing_settings.database_uri)
 
     def run_upgrade(connection, alembic_config: Config):
@@ -53,8 +74,9 @@ async def client(testing_settings: Settings):
         async with test_engine.begin() as conn:
             await conn.run_sync(run_upgrade, test_alembic_config)
 
-    app.dependency_overrides[get_settings] = lambda: testing_settings
+    app.dependency_overrides[get_async_session] = \
+        lambda: get_test_async_session
 
     yield TestClient(app)
 
-    Path("test_calendar.db").unlink(missing_ok=True)
+    Path("test_calendar.db").unlink()

@@ -58,6 +58,9 @@ extend-exclude = ["tests"]
 [tool.ruff.mccabe]
 max-complexity = 10
 
+[tool.ruff.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

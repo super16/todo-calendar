@@ -9,6 +9,14 @@ class TaskBase(BaseModel):
     description: str
 
 
+class TaskComplete(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_lower_camel,
+        populate_by_name=True,
+    )
+    is_completed: bool
+
+
 class TaskCreate(TaskBase):
     model_config = ConfigDict(
         alias_generator=to_lower_camel,
@@ -22,4 +30,3 @@ class TaskItem(TaskCreate):
     uuid: str
     is_completed: bool
     is_reoccurring: bool
-
