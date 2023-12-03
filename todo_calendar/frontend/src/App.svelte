@@ -89,6 +89,31 @@
     tasks = await response.json() as TaskItem[] ?? []
   }
 
+  async function updateTaskStatus (event: Event, taskId: string): Promise<void> {
+    const response = await fetch(
+      new URL(`http://localhost:8000/tasks/${taskId}/complete`
+      ), {
+        body: JSON.stringify({
+          isCompleted: (event.target as HTMLInputElement).checked
+        }),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
+        },
+        method: 'PATCH'
+      })
+    const updatedStatusTask: TaskItem | null = await response.json()
+    if (updatedStatusTask !== null) {
+      const taskToSwapIdx = tasks.findIndex((task) => {
+        return task.uuid === updatedStatusTask.uuid
+      })
+      if (taskToSwapIdx > -1) {
+        tasks[taskToSwapIdx] = updatedStatusTask
+        tasks = [...tasks]
+      }
+    }
+  }
+
   onMount(async () => {
     await updateDateAndFetch(currentDate)
   })
@@ -116,6 +141,7 @@
           id={task.uuid}
           checked={task.isCompleted}
           type=checkbox
+          on:change={async (e) => { await updateTaskStatus(e, task.uuid) }}
         >
         <label for={task.uuid}>
           {task.description}
