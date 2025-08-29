@@ -17,7 +17,7 @@ poetry run alembic upgrade head
 
 ```shell
 poetry run mypy .
-poetry run ruff --fix .
+poetry run ruff check --fix .
 ```
 
 ### Test

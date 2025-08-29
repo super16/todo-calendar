@@ -17,6 +17,7 @@ from todo_calendar.application.config import Settings
 from todo_calendar.application.database import get_async_session
 from todo_calendar.main import app
 
+TEST_CALENDAR_PATH = "test_calendar.db"
 
 @fixture(scope="session")
 def event_loop():
@@ -27,17 +28,17 @@ def event_loop():
 
 
 @fixture(scope="session")
-def testing_settings() -> Settings:
-    return Settings(database_uri="sqlite+aiosqlite:///test_calendar.db")
+def testing_settings():
+    return Settings(database_uri=f"sqlite+aiosqlite:///{TEST_CALENDAR_PATH}")
 
 
 @fixture(scope="session")
-def task_description() -> str:
+def task_description():
     return "Test description"
 
 
 @fixture(scope="session")
-def today_date() -> str:
+def today_date():
     today = date.today()
     return today.isoformat()
 
@@ -79,4 +80,5 @@ async def client(
 
     yield TestClient(app)
 
-    Path("test_calendar.db").unlink()
+    # Clear the database
+    Path(TEST_CALENDAR_PATH).unlink()

@@ -135,7 +135,7 @@
     </button>
   </div>
   <ul>
-    {#each tasks as task}
+    {#each tasks as task (task.uuid)}
       <li>
         <input
           id={task.uuid}
