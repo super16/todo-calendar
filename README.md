@@ -2,45 +2,42 @@
 
 Application with todo calendar. Day to day planning.
 
-## Development
+## Prerequisites
 
-Requires [poetry](https://python-poetry.org/).
+Requires:
 
-### Preparation
+* [pnpm](https://pnpm.io/)
+* [uv](https://docs.astral.sh/uv/)
 
 ```shell
-poetry install
-poetry run alembic upgrade head
+cp .env.example .env
+
+make install
+make migrate
 ```
+
+## Run
+
+```shell
+make run
+```
+
+## Development
 
 ### Lint
 
 ```shell
-poetry run mypy .
-poetry run ruff check --fix .
+make lint
 ```
 
 ### Test
 
 ```shell
-poetry run pytest
+make test
 ```
 
 ### Frontend
 
-Requires [pnpm](https://pnpm.io/).
-
 ```shell
-pnpm --prefix todo_calendar/frontend i
-pnpm --prefix todo_calendar/frontend run dev
-```
-
-### Run
-
-```shell
-cp .env.example .env
-
-pnpm --prefix todo_calendar/frontend run build
-
-poetry run uvicorn todo_calendar.main:app
+make dev
 ```
